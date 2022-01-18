@@ -6,7 +6,7 @@ class PSFrot(object):
         """
         from skimage import exposure
         from skimage import io  
-        im = io.imread(path, as_gray=gray)
+        im = io.imread(path, as_gray=gray, plugin='pil')
         if normalize:
             im = exposure.rescale_intensity(im)
         return im
