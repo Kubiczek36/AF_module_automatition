@@ -1,6 +1,4 @@
 class PSFrot(object):
-    import numpy as np
-
     def readImage(path, gray=True, normalize=True):
         """
         erads image from a file
@@ -31,7 +29,7 @@ class PSFrot(object):
             hough_res, hough_radii, total_num_peaks=2)
         return cx, cy, radii
 
-    def cetresOfMases(im, labeledImage=False, darkBlobs = True):
+    def centresOfMases(im, labeledImage=False, darkBlobs=True):
         """
         Finds centres of mass from each blob.
             `im` - binary image with separated blbs. 
@@ -42,6 +40,8 @@ class PSFrot(object):
         Returns
         """
         from scipy import ndimage as ndi
+        import numpy as np
+        from skimage.color import gray2rgb
         if labeledImage:
             imC = gray2rgb(im)
         if darkBlobs:
@@ -51,7 +51,7 @@ class PSFrot(object):
         c2 = ndi.center_of_mass(label_objects*(label_objects == 2))
         angle = np.rad2deg(np.arctan2(c1[0] - c2[0], c1[1] - c2[1]))
         cx = [int(c1[1]), int(c2[1])]
-        cy = [int(c1[0]), int(c2[0])]   
+        cy = [int(c1[0]), int(c2[0])]
         if labeledImage:
             for cx, cy in zip(cx, cy):
                 imC[cy, cx] = (0, 1., 0)
@@ -121,3 +121,23 @@ if __name__ == "__main__":
 
     ax.imshow(imC, cmap=plt.cm.gray)
     plt.show()
+    # %% Pokusná buňka pro separacu
+    i = -2
+    filename = "test_imgs/" + str(i) + ".tiff"
+    image = PSFrot.readImage(path=filename)
+    image = PSFrot.threshold(image, intensity=0.4)
+    # cx, cy, rad = PSFrot.findCircles(image)
+    # imC = gray2rgb(image)
+    # print(np.rad2deg(np.arctan2(cy[1] - cy[0], cx[1] - cx[0])))
+    # for cx, cy in zip(cx, cy):
+    #     imC[cy, cx] = (0, 1., 0)
+    # axs[i//5, 4-i%5].imshow(imC)
+    # axs[i//5, 4-i%5].format(title = str(i) + " um")
+    fill_psf = np.abs(1-image)
+    plt.imshow(fill_psf)
+    # fill_psf = ndi.binary_fill_holes(image)
+    label_objects, nb_labels = ndi.label(fill_psf)
+    plt.imshow(label_objects)
+    c1 = ndi.center_of_mass(label_objects*(label_objects == 1))
+    c2 = ndi.center_of_mass(label_objects*(label_objects == 2))
+    print(c1, '\n', c2)
