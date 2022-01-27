@@ -31,6 +31,34 @@ class PSFrot(object):
             hough_res, hough_radii, total_num_peaks=2)
         return cx, cy, radii
 
+    def cetresOfMases(im, labeledImage=False, darkBlobs = True):
+        """
+        Finds centres of mass from each blob.
+            `im` - binary image with separated blbs. 
+
+            `labeledImage` - option for labeling the centre with green color
+
+            `darkBlobs` - set as `True` if the blobs have value zero or `False`.
+        Returns
+        """
+        from scipy import ndimage as ndi
+        if labeledImage:
+            imC = gray2rgb(im)
+        if darkBlobs:
+            im = np.abs(1-im)
+        label_objects, _ = ndi.label(im)
+        c1 = ndi.center_of_mass(label_objects*(label_objects == 1))
+        c2 = ndi.center_of_mass(label_objects*(label_objects == 2))
+        angle = np.rad2deg(np.arctan2(c1[0] - c2[0], c1[1] - c2[1]))
+        cx = [int(c1[1]), int(c2[1])]
+        cy = [int(c1[0]), int(c2[0])]   
+        if labeledImage:
+            for cx, cy in zip(cx, cy):
+                imC[cy, cx] = (0, 1., 0)
+            return c1, c2, angle, imC
+        else:
+            return c1, c2, angle
+
 # %% Libraries import
 
 
