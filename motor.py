@@ -24,7 +24,7 @@ class stage:
         ans = self.port.readline()
         return(ans)
 
-    def init(self, setzero=True, speed = 1):
+    def init(self, setzero=True, speed = 5):
         """ 
         `speed` - in mm/s
         """
@@ -39,7 +39,8 @@ class stage:
         if setzero:
             writeSerialAns("MPR0,-16000000,0")
             sleep(2)
-        speed  = 1e3  # convert to nm/s
+        speed = speed * 1e6  # convert to nm/s
+        text = "MPR0,{:.0f},0".format(speed)
         writeSerAns("SCLS0,1000000")
         anse = writeSerialAns("SSE2")  # set sensor enabled
 
@@ -56,7 +57,7 @@ class stage:
         `position` - position to be moved in um
         """
         position = position * 1e3  # convert to nm
-        text = "MPR0,{:.0f},0".format(distance)
+        text = "MPR0,{:.0f},0".format(position)
         writeSerialAns(text)
 
     def getPosition(self):
